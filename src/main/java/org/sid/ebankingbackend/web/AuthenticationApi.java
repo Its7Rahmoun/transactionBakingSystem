@@ -10,6 +10,8 @@ import org.sid.ebankingbackend.ClinetsOpenFeign.MlClient;
 import org.sid.ebankingbackend.dtos.AuthRequest;
 import org.sid.ebankingbackend.dtos.requestpredected;
 import org.sid.ebankingbackend.dtos.saveUserRequest;
+import org.sid.ebankingbackend.entities.Customer;
+import org.sid.ebankingbackend.entities.Role;
 import org.sid.ebankingbackend.entities.UserApp;
 import org.sid.ebankingbackend.services.JwtService;
 import org.sid.ebankingbackend.services.UserAppService;
@@ -83,12 +85,19 @@ public class AuthenticationApi {
     }
 
     @PostMapping("/auth/save")
-    public UserApp save(@RequestBody saveUserRequest user) throws Exception {
+    public Customer save(@RequestBody saveUserRequest user) throws Exception {
         requestpredected valueUsernameMl =mlClient.update(user);
         if(valueUsernameMl.getPredected().equals("1"))
-          return userAppService.saveuser1(user.getNamecustomer(),user.getPassword(),user.getNamecustomer(),user.getRolename());
+          return userAppService.saveuser1(user.getNamecustomer(),user.getPassword(),user.getNamecustomer(),user.getRolename()).getCustomer();
+        else if (valueUsernameMl.getPredected().equals("not availabele"))
+            return Customer.builder()
+                    .name("not available")
+                    .email("not available")
+                    .id(null)
+                    .userApp(null)
+                    .build();
         else
-        throw new Exception("can t use this username its sames like its builds by ia");
+            throw new Exception("can t use this username its sames like its builds by ia");
     }
 
     @GetMapping("/auth/test")
